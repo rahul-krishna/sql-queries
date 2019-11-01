@@ -1,0 +1,11 @@
+SELECT sku, status_wk_1, status_wk_2, delivery_wk_1, delivery_wk_2
+FROM bob_live_nz.subscription_forecast
+   WHERE status_wk_0 <> 'cancelled'                                             thursday and friday
+   
+   
+   
+   
+   
+   SELECT sku, status_wk_0, status_wk_1, delivery_wk_0, delivery_wk_1          Monday, tuesday and Wednesday
+FROM bob_live_nz.subscription_forecast
+   WHERE status_wk_0 <> 'cancelled'
