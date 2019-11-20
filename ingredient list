@@ -1,0 +1,26 @@
+SELECT mk.recipe_index                                        AS bob_number,
+       -- mk.recipe_name,
+       mk.sku_code,
+       mk.sku_name,
+       IF(mk.size = 2, mk.picks, 0)                           AS qty_2ppl,
+       IF(mk.size = 4, mk.picks, 0)                           AS qty_4ppl,
+       -- COALESCE(ROUND(IF(skd.uom <> 'unit', skd.sku_weight_g, skd.unit_size)),0) AS packaging_size,
+        -- skd.uom,
+        mk.hf_week                                             AS week,
+        -- skd.cat,
+          -- skd.subcat,
+        -- skd.subcat,
+        -- skd.packaging_type,
+         -- mk.size,
+    meal_nr * COALESCE(IF(mk.size = 2, mk.picks, NULL), IF(mk.size = 4, mk.picks, NULL)) AS total_volume_needed,
+         production_day                                         AS production_day
+FROM octopus_myre.mealkits AS mk
+       JOIN octopus_myre.sku_details AS skd ON mk.sku_id = skd.sku_id AND skd.country = mk.country
+       JOIN (SELECT week, production_day, recipe, RIGHT(box,1) AS size, SUM(meal_nr) AS meal_nr
+             FROM pythia.recipe_forecast_nz
+             WHERE week between  '2019-W49' and '2019-W52'
+             GROUP BY week, production_day, recipe, size) f ON f.recipe = mk.recipe_index AND f.week = mk.hf_week AND f.size = mk.size
+WHERE mk.hf_week between  '2019-W49' and '2019-W52'
+  AND mk.country = 'nz'
+GROUP BY bob_number,mk.recipe_name, mk.sku_code, mk.sku_name, mk.picks,  skd.uom, week, mk.size, production_day
+ORDER BY mk.hf_week, mk.recipe_index
